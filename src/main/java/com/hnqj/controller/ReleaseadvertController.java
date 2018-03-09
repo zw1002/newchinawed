@@ -81,7 +81,7 @@ public class ReleaseadvertController extends BaseController{
         // 如果目录不存在则创建
         File uploadDir = new File(HOMEPATH);
         if (!uploadDir.exists()) {
-            uploadDir.mkdir();
+            uploadDir.mkdirs();
         }
         if(files!=null) {
             for (MultipartFile file : files) {//读取文件并上保存
@@ -168,7 +168,7 @@ public class ReleaseadvertController extends BaseController{
         // 如果目录不存在则创建
         File uploadDir = new File(HOMEPATH);
         if (!uploadDir.exists()) {
-            uploadDir.mkdir();
+            uploadDir.mkdirs();
         }
         if(files!=null) {
             for (MultipartFile file : files) {//读取文件并上保存
