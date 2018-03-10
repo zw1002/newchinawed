@@ -74,11 +74,11 @@ protected final Log logger = LogFactory.getLog(getClass());
 	}
 	 return dealrecordList; 
 	}
-	public List<Dealrecord> selectDealrecordList() {
+	public List<Dealrecord> selectDealrecordList(PageData pageData) {
 	 logger.info("查询所有Dealrecord");
 	List<Dealrecord>	dealrecordList=null;
 	 try { 
-		dealrecordList = (List<Dealrecord>) daoSupport.findForList("DealrecordMapper.selectDealrecordList",null);
+		dealrecordList = (List<Dealrecord>) daoSupport.findForList("DealrecordMapper.selectDealrecordList",pageData);
 	 }catch (Exception e){ 
 	 e.printStackTrace(); 
 	 dealrecordList=null; 

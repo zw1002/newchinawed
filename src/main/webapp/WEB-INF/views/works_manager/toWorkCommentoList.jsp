@@ -1,10 +1,3 @@
-<%--作品评论管理
-  Created by IntelliJ IDEA.
-  User: Admin
-  Date: 2017-12-04
-  Time: 0:46
-  To change this template use File | Settings | File Templates.
---%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page language="java" pageEncoding="UTF-8"
          contentType="text/html;charset=UTF-8"%>
@@ -21,25 +14,17 @@
     <%--表格样式--%>
     <link rel="stylesheet" href="<%=basePath%>/static/bootstrap/bootstrap-table/bootstrap-table.css">
     <link rel="stylesheet" href="<%=basePath%>/static/font-awesome/css/font-awesome.min.css">
-    <%--<script src="<%=basePath%>/bootstrap/js/bootstrap.min.js"></script>--%>
     <%--表格JS--%>
     <script src="<%=basePath%>/static/bootstrap/bootstrap-table/bootstrap-table.js"></script>
-    <%--表格导出--%>
-    <script src="<%=basePath%>/static/bootstrap/bootstrap-table/extensions/export/bootstrap-table-export.js"></script>
-    <script src="<%=basePath%>/static/js/tableExport.js"></script>
     <%--语言包--%>
     <script src="<%=basePath%>/static/bootstrap/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
     <%--提示框--%>
     <script src="<%=basePath%>/static/js/jquery.noty.packaged.min.js"></script>
     <script src="<%=basePath%>/static/js/showinfo.js"></script>
-    <%--日期--%>
-    <%-- <script src="<%=basePath%>/My97/WdatePicker.js"></script>>--%>
     <script type="text/javascript" src="<%=basePath%>/static/js/selectbox.js"></script>
-    <%--  <script type="text/javascript" src="<%=basePath%>/js/jquery.simplemodal.js"></script>--%>
     <link rel="stylesheet" href="<%=basePath%>/static/bootstrap/validate/css/bootstrapValidator.min.css"/>
     <script type="text/javascript" src="<%=basePath%>/static/bootstrap/validate/js/bootstrapValidator.js"></script>
     <script type="text/javascript" src="<%=basePath%>/static/bootstrap/validate/js/language/zh_CN.js"></script>
-
     <link href="<%=basePath%>/static/css/selectuser.css" rel="stylesheet">
     <%--自建公共js文件--%>
     <script type="text/javascript" src="<%=basePath%>/static/js/common-creat.js"></script>
@@ -71,7 +56,6 @@
     </style>
 </head>
 <script >
-
     //初始化表格
     function initTable() {
         //先销毁表格
@@ -121,7 +105,6 @@
     $(document).ready(function () {
         //调用函数，初始化表格
         initTable();
-
         $("button[title='刷新']").hide();
     });
 

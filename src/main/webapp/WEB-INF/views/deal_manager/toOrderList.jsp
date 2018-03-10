@@ -1,10 +1,3 @@
-<%--订单管理
-  Created by IntelliJ IDEA.
-  User: Admin
-  Date: 2017-12-14
-  Time: 21:56
-  To change this template use File | Settings | File Templates.
---%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page language="java" pageEncoding="UTF-8"
          contentType="text/html;charset=UTF-8"%>
@@ -21,23 +14,22 @@
     <%--表格样式--%>
     <link rel="stylesheet" href="<%=basePath%>/static/bootstrap/bootstrap-table/bootstrap-table.css">
     <link rel="stylesheet" href="<%=basePath%>/static/font-awesome/css/font-awesome.min.css">
-    <%--<script src="<%=basePath%>/bootstrap/js/bootstrap.min.js"></script>--%>
     <%--表格JS--%>
     <script src="<%=basePath%>/static/bootstrap/bootstrap-table/bootstrap-table.js"></script>
-    <%--表格导出--%>
-    <script src="<%=basePath%>/static/bootstrap/bootstrap-table/extensions/export/bootstrap-table-export.js"></script>
-    <script src="<%=basePath%>/static/js/tableExport.js"></script>
     <%--语言包--%>
     <script src="<%=basePath%>/static/bootstrap/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
     <%--提示框--%>
     <script src="<%=basePath%>/static/js/jquery.noty.packaged.min.js"></script>
     <script src="<%=basePath%>/static/js/showinfo.js"></script>
-
     <link rel="stylesheet" href="<%=basePath%>/static/bootstrap/validate/css/bootstrapValidator.min.css"/>
     <script type="text/javascript" src="<%=basePath%>/static/bootstrap/validate/js/bootstrapValidator.js"></script>
     <script type="text/javascript" src="<%=basePath%>/static/bootstrap/validate/js/language/zh_CN.js"></script>
     <%--自建公共js文件--%>
     <script type="text/javascript" src="<%=basePath%>/static/js/common-creat.js"></script>
+    <!--时间-->
+    <link rel="stylesheet" href="<%=basePath%>/static/bootstrap/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css"/>
+    <script type="text/javascript" src="<%=basePath%>/static/bootstrap/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="<%=basePath%>/static/bootstrap/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
     <style>
         .modal-title{
             font-size: 18px;
@@ -64,7 +56,7 @@
 <script >
 
     //初始化表格
-    function initTable() {
+    function initTable(flag,creatTime,creatTimes) {
         //先销毁表格
         $('#cusTable').bootstrapTable('destroy');
         //初始化表格,动态从服务器加载数据
@@ -76,421 +68,130 @@
             pagination: true, //启动分页
             toolbar:"#toolbar",
             showRefresh: true,
-            //showExport:true,
-            // height:400,
             pageSize: 10,  //每页显示的记录数
             pageNumber:1, //当前第几页
             exportDataType : "all",
-            clickToSelect:true,
-            //search:true,
+            clickToSelect:false,
             idField:"uid",
-            //showFooter:true,
             sidePagination: "server", //表示服务端请求
             //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder
             //设置为limit可以获取limit, offset, search, sort, order
             queryParamsType : "limit",
-
             queryParams: function queryParams(params) {   //设置查询参数
                 var param = {
                     limit: params.limit,
-                    offset: params.offset
+                    offset: params.offset,
+                    flag:flag,
+                    creatTime:creatTime,
+                    creatTimes:creatTimes
                 };
                 return param;
             },
             onLoadSuccess: function(){  //加载成功时执行
-
             },
             onLoadError: function(){  //加载失败时执行
-
             }
         });
     }
-    // var $table = $('#cusTable');
-
     /**
      * 初始化
      */
     $(document).ready(function () {
-
         //调用函数，初始化表格
-        initTable();
-        initValidate();
-        $("button[title='刷新']").hide();
-        $("#defaultForm").submit(function(ev){ev.preventDefault();});
-        $('#validateBtn').click(function() {
-            var bootstrapValidator = $("#defaultForm").data('bootstrapValidator');//必须
-            bootstrapValidator.validate();
-            if(bootstrapValidator.isValid()) {
-                var val=$("input[name='mdName']").val();
-                var val=$("input[name='mdCode']").val();
-                var val=$("input[name='mdOrdernum']").val();
-                var val=$("input[name='mdAddress']").val();
-                var val=$("input[name='mdImg']").val();
-                //  saveModule();
-                submit();
-            }else{
-                alert("请按照要求填写");
-                return;
-            }
-        });
-
+        initTable(3);
+        InitializationTime();
     });
-
-
-    //显示新建窗口
-    function newModule(){
-        initNewModule();
-        $('#newModal').modal('show');
-        $("#myModalLabel").html("查看交易详情");
-        $.ajax({
-            type: "post",
-            url: "<%=basePath%>/module/getParentModule.do",
-            data: {},
-            success: function (data) {
-                $("#pmId").find("option").remove();
-                if(data!=="failed"){
-                    var msg = eval("(" + data + ")");
-                    $.each(msg, function(name, value) {
-                        var varItem2 = new Option(value.mdName,value.uid);
-                        $("#pmId").append(varItem2);
-                    });
-                }else{
-                    errorInfo("保存失败");
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }
-            }
+    //初始化时间控件
+    function InitializationTime() {
+        $('#creatTime').datetimepicker({
+            format: 'yyyy-mm-dd',
+            minView: "month",
+            firstDay: 1,
+            autoclose: true,
+            todayBtn: 'linked',
+            language: 'zh-CN',
+            currentText: '今天',
         });
-    }
-    //初始化父菜单
-    function initParentModule(pm_id){
-        $.ajax({
-            type: "post",
-            url: "<%=basePath%>/module/getParentModule.do",
-            data: {},
-            success: function (data) {
-                $("#pmId").find("option").remove();
-                if(data!=="failed"){
-                    var msg = eval("(" + data + ")");
-                    $.each(msg, function(name, value) {
-                        var varItem2 = new Option(value.mdName,value.uid);
-                        if(pm_id==value.fid){
-                            $(varItem2).attr("selected","selected");
-                        }
-                        $("#pmId").append(varItem2);
-                    });
-                }else{
-                    errorInfo("保存失败");
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }
-            }
+        $('#creatTimes').datetimepicker({
+            format: 'yyyy-mm-dd',
+            minView: "month",
+            firstDay: 1,
+            autoclose: true,
+            todayBtn: 'linked',
+            language: 'zh-CN',
+            currentText: '今天',
         });
-    }
-    //添加和编辑提交按钮
-    function submit(){
-        var UserLabel=$("#myModalLabel").text();//添加编辑用户窗口
-        if(UserLabel.indexOf("新建") !=-1){
-            saveModule();//添加提交
-        } else{
-            updateModule();//修改提交
-        }
-    }
-    //初始化新建菜单表单
-    function initNewModule(){
-        $('#fid').val("");
-        $('#mdName').val("");
-        $('#mdCode').val("");
-        $('#mdOrdernum').val("");
-        $('#mdAddress').val("");
-        $('#mdImg').val("");
-        $('#mdMethod').val("");
-        $('#mdIschild').val("");
-    }
-
-    function initValidate(){
-        $('#defaultForm').bootstrapValidator({
-            message: '值不能为空',
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
-            fields: {
-                mdName: {
-                    validators: {
-                        notEmpty: {
-                            message: '菜单名称不能为空'
-                        }
-                    }
-                },
-                mdCode: {
-                    validators: {
-                        notEmpty: {
-                            message: '模块代码不能为空'
-                        }
-                    }
-                },
-                mdOrdernum: {
-                    validators: {
-                        notEmpty: {
-                            message: '显示顺序不能为空'
-                        }
-                    }
-                },
-                mdAddress: {
-                    validators: {
-                        notEmpty: {
-                            message: '模块地址不能为空'
-                        }
-                    }
-                },
-                mdImg: {
-                    validators: {
-                        notEmpty: {
-                            message: '图标不能为空'
-                        }
-                    }
-                }
-            }
-        });
-    }
-    /*
-     * 是否有子节点
-     * */
-    function ischecked(obj){
-
-    }
-    //提交保存
-    function saveModule(){
-        var obj =document.getElementById("mdIschild");
-        var pmId="";
-        if(obj.checked){
-            $('#mdIschild').val(true);
-            pmId=$("#pmId").val();
+    };
+    //查询数据
+    function selectDate() {
+        var flag = $("#flag").val();
+        var creatTime = $("#creatTime").val();
+        var creatTimes = $("#creatTimes").val();
+        if(creatTime != "" && creatTimes == ""){
+            errorInfo("时间区间不全");
+        }else if(creatTimes != "" && creatTime == ""){
+            errorInfo("时间区间不全");
         }else{
-            $('#mdIschild').val(false);
-            pmId=0;
+            initTable(flag,creatTime,creatTimes);
         }
-
-        // var opurl=$('#fid').val()==""?"/module/addModule.do":"/module/updateModule.do";
-        $.ajax({
-            type:"post",
-            url: "<%=basePath%>/module/addModule.do",
-            data:{
-                fid:$('#fid').val(),
-                mdName:$('#mdName').val(),
-                mdCode: $('#mdCode').val(),
-                pmId:  pmId,
-                mdOrdernum:$('#mdOrdernum').val(),
-                mdAddress: $('#mdAddress').val(),
-                mdImg: $('#mdImg').val(),
-                mdMethod: $('#mdMethod').val(),
-                mdIschild: $('#mdIschild').val()
-            },
-            success: function(data){
-                hideWait();
-                if(data!=="failed"){
-                    successInfo("保存成功!")
-                    $('#defaultForm').data('bootstrapValidator').resetForm(true);
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }else{
-                    errorInfo("保存失败");
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }
-            }
-        });
-        $('#newModal').modal('hide');
-    }
-    //编辑
-    function editModule(){
-        var arr = $('#cusTable').bootstrapTable('getSelections');
-        if(arr.length>0){
-            var fid = getIdSelections();
-            if(fid.length>1){
-                warningInfo("请选择一条记录");
-            }else {
-                $.ajax({
-                    type: "post",
-                    url: "<%=basePath%>/module/findModuleByFid.do",
-                    data: {fid: getCheckFid()},
-                    success: function (data) {
-                        if (data !== "failed") {
-                            $('#newModal').modal('show');
-                            $("#myModalLabel").html("修改菜单");
-                            var msg = eval("(" + data + ")");
-                            $('#fid').val(msg.uid);
-                            $('#mdName').val(msg.mdName);
-                            $('#mdCode').val(msg.mdCode);
-                            initParentModule(msg.pmId);
-                            $('#mdOrdernum').val(msg.mdOrdernum);
-                            $('#mdAddress').val(msg.mdAddress);
-                            $('#mdImg').val(msg.mdImg);
-                            $('#mdMethod').val(msg.mdMethod);
-                            if (msg.mdIschild == "true") {
-                                $('#mdIschild').attr("checked", "checked");
-                            }
-                        }
-                    }
-                })
-            }
-        } else{
-            warningInfo("请选择要修改的记录");
-        }
-    }
-    //更新
-    function updateModule(){
-        var obj =document.getElementById("mdIschild");
-        var pmId="";
-        if(obj.checked){
-            $('#mdIschild').val(true);
-            pmId=$("#pmId").val();
+    };
+    //导出
+    function exportExcel(){
+        var flag = $("#flag").val();
+        var creatTime = $("#creatTime").val();
+        var creatTimes = $("#creatTimes").val();
+        if(creatTime != "" && creatTimes == ""){
+            errorInfo("时间区间不全");
+        }else if(creatTimes != "" && creatTime == ""){
+            errorInfo("时间区间不全");
         }else{
-            $('#mdIschild').val(false);
-            pmId=0;
-        }
-        $.ajax({
-            type:"post",
-            url:  "<%=basePath%>/module/updateModule.do",
-            data:{
-                fid:$('#fid').val(),
-                mdName:$('#mdName').val(),
-                mdCode: $('#mdCode').val(),
-                pmId:  pmId,
-                mdOrdernum:$('#mdOrdernum').val(),
-                mdAddress: $('#mdAddress').val(),
-                mdImg: $('#mdImg').val(),
-                mdMethod: $('#mdMethod').val(),
-                mdIschild: $('#mdIschild').val()
-            },
-            success: function(data){
-                hideWait();
-                if(data!=="failed"){
-                    successInfo("保存成功!")
-                    $('#defaultForm').data('bootstrapValidator').resetForm(true);
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }else{
-                    errorInfo("保存失败");
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }
-            }
-        });
-        $('#newModal').modal('hide');
-    }
-
-    function delRow(){
-        var arr = $('#cusTable').bootstrapTable('getSelections');
-        if(arr.length>0){
-            (confirmInfo("确认终止当前记录?")).then(function (status) {
-                if (status==true) {
-                    deleteModule();
-                }
-            });
-        } else{
-            warningInfo("请选择要终止的记录");
+            window.location.href = "<%=basePath%>/dealOrderMgr/exportExcelDealorderList.do?flag="+flag+"&creatTime="+creatTime+"&creatTimes="+creatTimes;
         }
     }
-    //删除
-    function deleteModule(){
-        console.info("deleteModule");
-        var ids = getIdSelections();
-        $.ajax({
-            type: "POST",
-            url: "<%=basePath%>/module/delModulefIds.do",
-            data: {
-                ids:getCheckFid()
-            },
-            beforeSend : function() {
-                submitWait();
-            },
-            error : function() {
-                hideWait();
-                errorInfo("删除记录失败");
-            },
-            success: function(data){
-                hideWait();
-                if(data!=="failed"){
-                    $('#cusTable').bootstrapTable('remove', {
-                        field: 'uid',
-                        values: ids
-                    });
-                    successInfo("删除成功!")
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }else{
-                    errorInfo("删除记录失败");
-                    $('#cusTable').bootstrapTable('refresh');//初始化数据
-                }
-            }
-        });
-        $('#newModal').modal('hide');
+    //重置
+    function refersh(){
+      $("#creatTime").val("");
+      $("#creatTimes").val("");
     }
-
-    //取表格行数用于表格行的移除
-    function getIdSelections() {
-        return $.map($('#cusTable').bootstrapTable('getAllSelections'), function (row) {
-            return row.uid;
-        });
-    }
-    //获取FID用于后台操作
-    function getCheckFid(){
-        var fids="";
-        $('#cusTable').find('input[name="btSelectItem"]:checked').each(function(){
-            fids += $(this).val()+',';
-        });
-        return fids;
-    }
-    function resetForm(){
-        $('#defaultForm').data('bootstrapValidator').resetForm(true);
-    }
-
 </script>
 <body id="loading" class="style_body">
 <div class="style_border">
     <div>
         <div id="toolbar" class="btn-group-sm">
-            <button id="add" class="btn btn-info" onclick="newModule()">
-                <i class="glyphicon glyphicon-expand"></i> 查看
-            </button>
-            <button id="remove" class="btn btn-info" onclick="delRow()">
-                <i class="glyphicon glyphicon-remove"></i> 终止
-            </button>
-            <button id="refresh" class="btn btn-info" name="refresh" >
-                <i class="glyphicon glyphicon-refresh"></i> 刷新
-            </button>
+            <label style="width:95px;margin-top: 5px" class="control-label col-md-1">订单类型:</label>
+            <div style="margin-top: 5px;width: 130px;margin-left: -25px" class="col-md-4">
+                <select id="flag" class="form-control">
+                    <option value="3">全部</option>
+                    <option value="0">进行中</option>
+                    <option value="1">已完成</option>
+                </select>
+            </div>
+            <label style="width:95px;margin-top: 5px;margin-left: -15px" class="control-label col-md-1">时间区间:</label>
+            <div class="col-md-2">
+                <input style="margin-left: -22px;margin-top: 5px" type="text" id="creatTime" name="creatTime" class="form-control" readonly>
+            </div>
+            <label style="margin-left: -40px;margin-top: 5px" class="control-label col-md-1">至:</label>
+            <div class="col-md-2">
+                <input style="margin-left: -45px;margin-top: 5px" type="text" id="creatTimes" name="creatTimes" class="form-control" readonly>
+            </div>
+            <button class="btn btn-info" style="margin-left: -20px;margin-top: 5px" onclick="refersh()">重置</button>
+            <button class="btn btn-info" style="margin-left: 13px;margin-top: 5px" onclick="selectDate()">查询</button>
+            <button class="btn btn-info" style="margin-left: 10px;margin-top: 5px" onclick="exportExcel()">导出订单统计表</button>
         </div>
         <table id="cusTable" class="table" >
             <thead>
             <tr>
                 <th data-field="dealuid" data-checkbox="true" align="center">订单号</th>
-                <th data-field="businesid"  data-editable="false" align="center">购买人</th>
+                <th data-field="payuser"  data-editable="false" align="center">购买人</th>
+                <th data-field="workname"  data-editable="false" align="center">作品信息</th>
                 <th data-field="dealtime"  data-editable="false" align="center">交易时间</th>
                 <th data-field="dealprice"  data-editable="false" align="center">交易金额</th>
-                <th data-field="dealtype" data-editable="false"  align="center" >支付方式</th>
                 <th data-field="dealstate"  data-editable="false" align="center">交易状态</th>
-                <%--<th data-field="creator"  data-editable="false" align="center">创建人</th>--%>
             </tr>
             </thead>
         </table>
     </div>
-
 </div>
-
-<div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">新建</h4>
-            </div>
-            <div class="modal-body" id="defaultForm" method="post">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" onclick="resetForm()" data-dismiss="modal">关闭</button>
-                <%--<button type="button" class="btn btn-primary" id="validateBtn" >提交</button>--%>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
-
 <script src="<%=basePath%>/static/bootstrap/js/bootstrap.min.js"></script>
 <%--模态弹窗引用jquery-ui设置可拖动--%>
 <script src="<%=basePath%>/static/js/jquery-ui.min.js"></script>
