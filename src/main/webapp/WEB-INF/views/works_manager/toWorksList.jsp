@@ -11,6 +11,7 @@
 <%
     String path = request.getContextPath();
     String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
+    String chinawebPath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+"/chinaweb";
 %>
 <head>
     <meta charset="utf-8">
@@ -163,7 +164,7 @@
             $('#txt_worklabel').html("<span class='label label-primary'>" + arr[0].worklabel + "</span>");
             $('#txt_workremark').html(arr[0].workremark);
             $('#fid').val(arr[0].uid);
-            $("#img_sh").attr('src', '<%=basePath%>/' + arr[0].worksurl);
+            $("#img_sh").attr('src', '<%=chinawebPath%>/' + arr[0].worksurl);
             $('#newModal').modal('show');
         } else  warningInfo("请选择单条记录!");
     }
@@ -199,7 +200,7 @@
         var arr = $('#cusTable').bootstrapTable('getSelections');
         if(arr.length==1){
 
-            $("#img_info").attr('src','<%=basePath%>/'+arr[0].worksurl);
+            $("#img_info").attr('src','<%=chinawebPath%>/'+arr[0].worksurl);
             $('#viewImgModel').modal('show');
         }
         else  warningInfo("请选择单条记录!");
