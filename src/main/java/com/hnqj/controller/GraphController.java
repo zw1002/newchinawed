@@ -91,11 +91,11 @@ public class GraphController extends  BaseController {
     public String examineGraph(HttpServletRequest request, HttpServletResponse response, Model model) {
         logger.info("examineGraph");
         String uid = request.getParameter("uid") == null ? "" : request.getParameter("uid");
-        int flag = request.getParameter("flag") == null ? 0 : Integer.parseInt(request.getParameter("flag"));
+        int statu = request.getParameter("statu") == null ? 0 : Integer.parseInt(request.getParameter("statu"));
         try{
             PageData pageData=new PageData();
             pageData.put("uid",uid);
-            pageData.put("displayflag",flag);
+            pageData.put("displayflag",statu);
             pageData.put("checkuser",getUser().getUid());
             pageData.put("chacktime",new Date());
             int number=graphServices.updateGraphState(pageData);
